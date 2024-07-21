@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - NODE_ENV=development
+    ports:
+      - '4004:4004'
+    volumes:
+      - .:/app
+    environment:
+      - PORT=4004
