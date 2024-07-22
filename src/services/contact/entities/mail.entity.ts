@@ -1,13 +1,7 @@
-import {
-  Column,
-  PrimaryGeneratedColumn,
-  Entity,
-  CreateDateColumn,
-} from 'typeorm';
+import { BaseEntity } from '@/services/baseServices/entity/base.entity';
+import { Column, CreateDateColumn, Entity } from 'typeorm';
 @Entity()
-export class Mail {
-  @PrimaryGeneratedColumn()
-  id: number;
+export class Mail extends BaseEntity<Mail> {
   @Column()
   name: string;
   @Column({ nullable: true })

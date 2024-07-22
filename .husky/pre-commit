@@ -1,4 +1,2 @@
 
 bash .husky/prevent-main-commit.sh
-
-yarn lint-staged

@@ -16,7 +16,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         autoLoadEntities: true,
         synchronize: configService.getOrThrow('SQL_SYNCHRONIZE') ?? true,
         cache: {
-          duration: 30 * 60000
+          duration: parseInt(process.env.CACHE_DURATION) || 30 * 60000
         }
       }),
       inject: [ConfigService]

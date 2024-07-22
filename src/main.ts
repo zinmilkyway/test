@@ -14,7 +14,8 @@ async function bootstrap() {
   });
   const options = new DocumentBuilder()
     .setTitle('ALD training v0.0.1')
-    .setDescription('API descriptions')
+    .setDescription('Admin Username: thanhhd,\tPassword: thanhhd')
+    .setDescription('Admin Username: thanhhd,\tPassword: thanhhd')
     .setVersion('0.0.1')
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
@@ -28,5 +29,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
   await app.listen(process.env.PORT ?? 4001);
+  console.info('Listening on port', process.env.PORT ?? 4001);
 }
 bootstrap();

@@ -1,11 +1,9 @@
-import { OrderEntity } from 'src/services/order/order.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne } from 'typeorm';
+import { BaseEntity } from '../baseServices/entity/base.entity';
+import { OrderEntity } from '../order/entities/order.entity';
 
 @Entity()
-export class CartEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class CartEntity extends BaseEntity<CartEntity> {
   @Column()
   productId: string;
 

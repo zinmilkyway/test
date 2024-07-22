@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductsService } from 'src/services/product/products.service';
 import { Repository } from 'typeorm';
@@ -17,42 +17,50 @@ export class CartService {
     quantity: number,
     user: string
   ): Promise<any> {
-    const cartItems = await this.cartRepository.find();
-    const product = await this.productsService.getOne(productId);
+    try {
+      const cartItems = await this.cartRepository.find({
+        where: { userId: user }
+      });
+      const product = await this.productsService.getOne(productId);
 
-    if (product) {
-      //confirm if item is exists in the cart
-      const cart = cartItems.filter(
-        (item) => item.productId === productId && item.userId === user
-      );
-      if (cart.length < 1) {
-        const newItem = {
-          productId: product.id,
-          // price: product.price,
-          quantity,
-          // total: product.price * quantity,
-          userId: user
-        };
-        return await this.cartRepository.save(newItem);
-      } else {
-        //Update the item quantity
-        const quantity = (cart[0].quantity += 1);
-        const total = cart[0].price * quantity;
+      if (product) {
+        //confirm if item is exists in the cart
+        const cart = cartItems.filter(
+          (item) => item.productId === productId && item.userId === user
+        );
+        if (cart.length < 1) {
+          const newItem = {
+            productId: product.id,
+            price: product.price,
+            quantity,
+            total: product.price * quantity,
+            userId: user
+          };
+          await this.cartRepository.save(newItem);
+        } else {
+          //Update the item quantity
+          const updatedQuantity = (cart[0].quantity += quantity);
+          const total = cart[0].price * updatedQuantity;
 
-        return await this.cartRepository.update(cart[0].id, {
-          quantity,
-          total
-        });
+          await this.cartRepository.update(cart[0].id, {
+            quantity: updatedQuantity,
+            total
+          });
+        }
       }
+      return 'Success';
+    } catch (error) {
+      throw new BadRequestException(error);
     }
-    return null;
   }
   async getItemsInCard(user: string): Promise<CartEntity[]> {
-    const userCart = this.cartRepository.find();
-    return (await userCart).filter((item) => item.userId === user);
+    const userCart = await this.cartRepository.find({
+      where: { userId: user }
+    });
+    return userCart;
   }
 
-  async emptyCart(): Promise<any> {
-    return true;
+  async emptyCart(userId: string): Promise<any> {
+    return this.cartRepository.delete({ userId: userId });
   }
 }

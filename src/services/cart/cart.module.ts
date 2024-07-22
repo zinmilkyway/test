@@ -5,9 +5,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CartEntity } from './cart.entity';
 import { Product } from '../product/entities/product.entity';
 import { ProductsService } from '../product/products.service';
-import { OrderEntity } from '../order/order.entity';
 import { RelatedProduct } from '../product/entities/relatedProduct.entity';
 import { Category } from '../categories/entities/category.entity';
+import { OrderEntity } from '../order/entities/order.entity';
 
 @Module({
   imports: [

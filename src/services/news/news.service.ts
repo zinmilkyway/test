@@ -26,7 +26,7 @@ export class NewsService {
       if (file) {
         createNewsDto.image_path = JSON.stringify(file.path.replace('\\', '/'));
       }
-      console.log(user);
+      createNewsDto.created_by = user.name;
       createNewsDto.created_by = user.name;
       return this.newsRepo.save(createNewsDto);
     }
@@ -46,22 +46,23 @@ export class NewsService {
     //   ? { updatedAt: 'DESC' }
     //   : { updatedAt: 'ASC' };
 
-    const filterCate = filter?.split(',');
+    // const filterCate = filter?.split(',');
     // provide builder to paginate
-    const queryBuilder = this.newsRepo
-      .createQueryBuilder('news')
-      .where('news.category IN (:...category)', {
-        category: filterCate ?? ['1', '2']
-      })
-      .orderBy('news.updated_at', 'DESC');
+    // const queryBuilder = await this.newsRepo
+    //   .createQueryBuilder('news')
+    //   .getMany()
+
+    // console.log(queryBuilder)
+    // .orderBy('news.updated_at', 'DESC');
     // .cache('product', 30 * 1000);
 
-    const newsPage = await paginate<News>(queryBuilder, options);
-    if (newsPage) {
-      newsPage.items.forEach((item) => {
-        item.image_path = JSON.parse(item.image_path);
-      });
-    }
+    const newsPage = await paginate<News>(this.newsRepo, options);
+    // console.log(newsPage)
+    // if (newsPage) {
+    //   newsPage?.items?.forEach((item) => {
+    //     item.image_path = JSON.parse(item?.image_path);
+    //   });
+    // }
     return newsPage;
   }
   findRecently(number: number) {
@@ -73,7 +74,7 @@ export class NewsService {
     });
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return this.newsRepo.findOne({
       where: {
         id: id
@@ -81,7 +82,7 @@ export class NewsService {
     });
   }
 
-  async update(id: number, updateNewsDto: UpdateNewsDto, file: any) {
+  async update(id: string, updateNewsDto: UpdateNewsDto, file: any) {
     if (file) {
       updateNewsDto.image_path = file.path;
     }
@@ -96,7 +97,7 @@ export class NewsService {
     return this.newsRepo.save({ ...oldData, ...updateNewsDto });
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return this.newsRepo.delete(id);
   }
 }

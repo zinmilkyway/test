@@ -1,6 +1,7 @@
 import {
   ForbiddenException,
   Injectable,
+  NotFoundException,
   UnauthorizedException
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -12,22 +13,28 @@ import { ChangePasswordDto } from '../entities/changePassword.dto';
 import { LoginDto } from '../entities/login.dto';
 import { SignUpDto } from '../entities/signUp.dto';
 import { User } from '../entities/user.entity';
+import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
-    private jwt: JwtService
+    private jwt: JwtService,
+    private configService: ConfigService
   ) {}
 
-  async signup(user: SignUpDto): Promise<User> {
+  async signup(user: SignUpDto): Promise<SignUpDto> {
     const foundUser = await this.userRepository.findOne({
       where: { username: user.username }
     });
-    if (foundUser) throw new ForbiddenException();
+    if (foundUser) throw new ForbiddenException('User already exists');
     const salt = await bcrypt.genSalt();
     const hash = await bcrypt.hash(user.password, salt);
     user.password = hash;
-    return await this.userRepository.save(user);
+    if (user.role === undefined) user.role = 'user';
+    if (user.role === 'admin')
+      throw new ForbiddenException('Admin cannot be created');
+    await this.userRepository.save(user);
+    return user;
   }
   async login(user: LoginDto) {
     const payload = {
@@ -35,7 +42,6 @@ export class AuthService {
       password: user.password
     };
 
-    console.log(user);
     const foundUser = await this.userRepository.findOne({
       where: { username: payload.username }
     });
@@ -50,16 +56,43 @@ export class AuthService {
       username: foundUser.username,
       role: foundUser.role
     });
+
     return newToken;
   }
-  async changePassword(user: ChangePasswordDto) {
+  async changePassword(user: ChangePasswordDto, req: LoginDto) {
     const payload = {
       currentPassword: user.currentPassword,
       newPassword: user.newPassword
     };
-    return {
-      access_token: this.jwt.sign(payload)
-    };
+
+    const foundUser = await this.userRepository.findOne({
+      where: { username: req.username }
+    });
+
+    if (!foundUser) {
+      throw new NotFoundException('User not found');
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      payload.currentPassword,
+      foundUser.password
+    );
+
+    const salt = await bcrypt.genSalt();
+    const hash = await bcrypt.hash(payload.newPassword, salt);
+
+    if (!isPasswordValid) {
+      throw new ForbiddenException('Current password is incorrect');
+    }
+
+    foundUser.password = hash;
+
+    await this.userRepository.update(
+      { username: req.username },
+      { password: foundUser.password }
+    );
+
+    return { message: 'Password updated successfully' };
   }
 
   async reIssues(refreshToken: string) {
@@ -107,18 +140,30 @@ export class AuthService {
   async signToken(user: { username: string; role: string }) {
     const response = {
       accessToken: await this.jwt.signAsync(user, {
-        expiresIn: 100000,
+        expiresIn: this.configService.getOrThrow('TOKEN_TIMEOUT') || '5h',
         audience: 'access'
       }),
-      accessTokenExpiry: Date.now() + 100000,
+      accessTokenExpiry:
+        Date.now() + this.configService.getOrThrow('TOKEN_TIMEOUT') || '5h',
       refreshToken: await this.jwt.signAsync(user, {
-        expiresIn: Date.now() + 100000,
+        expiresIn:
+          Date.now() + this.configService.getOrThrow('TOKEN_TIMEOUT') || '5h',
         audience: 'refresh',
         jwtid: randomUUID()
       }),
-      refreshTokenExpiry: Date.now() + 100000,
+      refreshTokenExpiry:
+        Date.now() + this.configService.getOrThrow('TOKEN_TIMEOUT') || '5h',
       user
     };
     return response;
   }
+
+  getAccountInfo = async (req: any) => {
+    const user = await this.userRepository.findOne({
+      where: { username: req.username }
+    });
+    delete user.password;
+    delete user.name;
+    return user;
+  };
 }

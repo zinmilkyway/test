@@ -26,10 +26,10 @@ export class ProductDTO {
   @IsString()
   name: string;
 
-  slug: string;
+  slug?: string;
 
   @IsNumber()
-  status: string;
+  status: number;
 
   // @ApiProperty({
   //   description: 'product img',
@@ -43,8 +43,8 @@ export class ProductDTO {
   summary: string;
 
   // @ApiProperty({ description: 'gia' })
-  @IsString()
-  price: string;
+  @IsNumber()
+  price: number;
 
   // @ApiProperty({ description: 'mo ta chi tiet' })
   @IsString()
@@ -78,7 +78,7 @@ export class ProductDTO {
 
   // @ApiProperty({ description: 'category' })
   @IsString()
-  categoryId: string;
+  categorySlug: string;
 
   // @ApiProperty({ description: 'type' })
   @IsString()

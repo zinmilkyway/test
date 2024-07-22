@@ -1,14 +1,7 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-  Column,
-} from 'typeorm';
+import { BaseEntity } from '@/services/baseServices/entity/base.entity';
+import { Column, CreateDateColumn, Entity, UpdateDateColumn } from 'typeorm';
 @Entity()
-export class News {
-  @PrimaryGeneratedColumn()
-  id: number;
+export class News extends BaseEntity<News> {
   @Column()
   name: string;
   @Column()

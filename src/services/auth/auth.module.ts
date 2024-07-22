@@ -14,11 +14,12 @@ import { User } from './entities/user.entity';
     PassportModule,
     JwtModule.register({
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '5h' }
+      signOptions: { expiresIn: process.env.TOKEN_TIMEOUT || '5h' }
     }),
     TypeOrmModule.forFeature([User])
   ],
   providers: [AuthService, LocalStrategy, JwtStrategy],
-  controllers: [AuthController]
+  controllers: [AuthController],
+  exports: [AuthService]
 })
 export class AuthModule {}

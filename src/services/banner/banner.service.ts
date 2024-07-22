@@ -25,7 +25,7 @@ export class BannerService {
     user: User
   ) {
     if (user.role == 'admin') {
-      let saveBanner = Object.assign(new Banner(), createBannerDto);
+      let saveBanner = new Banner(createBannerDto);
 
       saveBanner.image = JSON.stringify(file.path.replace('\\', '/'));
 

@@ -1,13 +1,14 @@
 import {
   Body,
   Controller,
+  Get,
   Headers,
   Post,
   Put,
+  Request,
   UnauthorizedException,
   UseGuards
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -18,9 +19,8 @@ import { ChangePasswordDto } from './entities/changePassword.dto';
 import { LoginDto } from './entities/login.dto';
 import { RefreshTokenDto } from './entities/refreshToken.dto';
 import { SignUpDto } from './entities/signUp.dto';
-import { User } from './entities/user.entity';
-import { AuthService } from './service/auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { AuthService } from './service/auth.service';
 
 @ApiTags('Users')
 @Controller('api/v1/auth/')
@@ -30,7 +30,7 @@ export class AuthController {
   constructor(private usersService: AuthService) {}
 
   @Post('signup')
-  async signup(@Body() user: SignUpDto): Promise<User> {
+  async signup(@Body() user: SignUpDto): Promise<SignUpDto> {
     return this.usersService.signup(user);
   }
 
@@ -74,7 +74,16 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Put('change-password')
-  async changePassword(@Body() password: ChangePasswordDto) {
-    return this.usersService.changePassword(password);
+  async changePassword(
+    @Body() password: ChangePasswordDto,
+    @Request() req: any
+  ) {
+    return this.usersService.changePassword(password, req.user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/me')
+  async getAccountInfo(@Request() req: any) {
+    return this.usersService.getAccountInfo(req.user);
   }
 }

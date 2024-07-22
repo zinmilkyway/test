@@ -1,3 +1,4 @@
+import { BaseEntity } from '@/services/baseServices/entity/base.entity';
 import { Product } from '@/services/product/entities/product.entity';
 import {
   Column,
@@ -6,16 +7,12 @@ import {
   Index,
   OneToMany,
   PrimaryColumn,
-  PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
 
 @Entity()
 @Index('cat_id', ['id', 'slug'])
-export class Category {
-  @PrimaryGeneratedColumn('uuid')
-  id!: string;
-
+export class Category extends BaseEntity<Category> {
   @Column()
   name: string;
 
@@ -41,8 +38,4 @@ export class Category {
 
   @UpdateDateColumn()
   updatedAt: string;
-
-  constructor(Category) {
-    Object.assign(this, Category);
-  }
 }

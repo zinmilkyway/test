@@ -28,6 +28,7 @@ export function removeVietnameseTones(str: string) {
     ' '
   );
   str = str.toLowerCase();
+  str = str.replace(/ /g, '-');
 
   return str;
 }

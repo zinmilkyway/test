@@ -1,15 +1,8 @@
-import {
-  Column,
-  PrimaryGeneratedColumn,
-  Entity,
-  CreateDateColumn,
-  UpdateDateColumn
-} from 'typeorm';
+import { BaseEntity } from '@/services/baseServices/entity/base.entity';
+import { Column, CreateDateColumn, Entity, UpdateDateColumn } from 'typeorm';
 
 @Entity()
-export class Banner {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+export class Banner extends BaseEntity<Banner> {
   @Column('varchar', { length: 255 })
   name: string;
   @Column('int', { nullable: true, default: 1 })

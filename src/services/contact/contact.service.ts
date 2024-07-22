@@ -9,7 +9,7 @@ import { Repository } from 'typeorm';
 export class ContactService {
   constructor(
     @InjectRepository(Contact)
-    private contactRepo: Repository<Contact>,
+    private contactRepo: Repository<Contact>
   ) {}
   create(createContactDto: CreateContactDto) {
     createContactDto.address = JSON.stringify(createContactDto.address);
@@ -33,9 +33,9 @@ export class ContactService {
   async findOne() {
     const contact = await this.contactRepo.findOne({
       where: {
-        id: 1,
+        id: '1'
       },
-      cache: false,
+      cache: false
     });
     if (!contact) throw new NotFoundException();
     contact.address = JSON.parse(contact.address);
@@ -44,12 +44,12 @@ export class ContactService {
     return contact;
   }
 
-  async update(id: number, updateContactDto: UpdateContactDto) {
+  async update(id: string, updateContactDto: UpdateContactDto) {
     const oldContact = await this.contactRepo.find({
       where: {
-        id: 1,
+        id: '1'
       },
-      cache: false,
+      cache: false
     });
     if (!oldContact) throw new NotFoundException();
     updateContactDto.address = JSON.stringify(updateContactDto.address);
@@ -57,7 +57,7 @@ export class ContactService {
     updateContactDto.work_time = JSON.stringify(updateContactDto.work_time);
     return this.contactRepo.save({
       ...oldContact,
-      ...updateContactDto,
+      ...updateContactDto
     });
   }
 

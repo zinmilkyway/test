@@ -15,7 +15,6 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 import { UploadedFiles } from '@nestjs/common/decorators';
-import { AuthGuard } from '@nestjs/passport';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
@@ -76,7 +75,7 @@ export class ProductsController {
   @ApiQuery({ name: 'filter', type: String, required: false })
   @ApiResponse({ type: ProductDTO })
   async getByCategory(
-    @Param('categoryId') categoryId: string,
+    @Param('categorySlug') categorySlug: string,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
     @Query('limit', new DefaultValuePipe(16), ParseIntPipe) limit: number = 16,
     @Query(
@@ -96,7 +95,7 @@ export class ProductsController {
       },
       orderBy,
       filter,
-      categoryId
+      categorySlug
     );
   }
 
@@ -121,8 +120,8 @@ export class ProductsController {
           format: 'string'
         },
         price: {
-          type: 'string',
-          format: 'string'
+          type: 'number',
+          format: 'number'
         },
         description: {
           type: 'string',
@@ -148,7 +147,7 @@ export class ProductsController {
           type: 'string',
           format: 'string'
         },
-        categoryId: {
+        categorySlug: {
           type: 'string',
           format: 'string'
         },

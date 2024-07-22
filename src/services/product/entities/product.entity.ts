@@ -1,3 +1,4 @@
+import { BaseEntity } from '@/services/baseServices/entity/base.entity';
 import { Category } from '@/services/categories/entities/category.entity';
 import {
   Column,
@@ -7,17 +8,13 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
-  PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
 import { RelatedProduct } from './relatedProduct.entity';
 
 @Entity()
 @Index('prod_id', ['id'])
-export class Product {
-  @PrimaryGeneratedColumn('uuid')
-  id!: string;
-
+export class Product extends BaseEntity<Product> {
   @Column()
   name: string;
 
@@ -34,7 +31,7 @@ export class Product {
   summary: string;
 
   @Column()
-  price?: string;
+  price?: number;
 
   @Column()
   description?: string;

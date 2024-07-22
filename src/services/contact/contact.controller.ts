@@ -104,7 +104,7 @@ export class ContactController {
     @Param('id') id: string,
     @Body() updateContactDto: UpdateContactDto
   ) {
-    return await this.contactService.update(+id, updateContactDto);
+    return await this.contactService.update(id, updateContactDto);
   }
 
   @Delete(':id')

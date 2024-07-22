@@ -1,4 +1,3 @@
-import { filter } from 'rxjs';
 import {
   BadRequestException,
   Injectable,
@@ -13,11 +12,11 @@ import { Pagination } from 'nestjs-typeorm-paginate/dist/pagination';
 import { User } from 'src/services/auth/entities/user.entity';
 import { removeVietnameseTones } from 'src/utils/fn';
 import { DeleteResult, Repository } from 'typeorm';
+import { Category } from '../categories/entities/category.entity';
 import { LogServices } from './../log4js/log4js.service';
 import { ProductDTO } from './dto/product.dto';
 import { Product } from './entities/product.entity';
 import { RelatedProduct } from './entities/relatedProduct.entity';
-import { Category } from '../categories/entities/category.entity';
 
 export enum Order {}
 @Injectable()
@@ -106,12 +105,12 @@ export class ProductsService {
     user: User
   ) {
     try {
-      if (user.role == 'admin') {
-        let saveProduct = Object.assign(new Product(), productDTO);
+      if (user.role === 'admin') {
+        let saveProduct = new Product(productDTO);
 
         const category = await this.categoryRepo.findOne({
           where: {
-            slug: productDTO.categoryId
+            slug: productDTO.categorySlug
           }
         });
         if (!category) {
@@ -179,6 +178,8 @@ export class ProductsService {
         .warn('Unauthorize access: ' + JSON.stringify(user));
     } catch (error) {
       if (error.status === 401) throw new UnauthorizedException();
+      if (error.status === 400)
+        throw new BadRequestException('Check if categoryId exist');
       throw new ServiceUnavailableException();
     }
   }
@@ -218,7 +219,7 @@ export class ProductsService {
   ): Promise<Product> {
     try {
       if (user.role == 'admin') {
-        let saveProduct = Object.assign(new Product(), productDTO);
+        let saveProduct = new Product(productDTO);
 
         const product = await this.productRepository.findOne({
           where: { id: id },
